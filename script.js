@@ -154,7 +154,7 @@ function populateDataTable(rows) {
   tbody.innerHTML = '';
 
   // Hanya render 6 baris pertama
-  rows.slice(0, 6).forEach(cols => {
+  rows.slice(0, 5).forEach(cols => {
     if (cols.length < 8) return;
     const tr = document.createElement('tr');
     cols.forEach(cell => {
@@ -204,13 +204,32 @@ async function loadSVGMap(path) {
 
 
 // Attach hover events to map provinces semua provinsi
-// function attachHoverEvents() {
-//   const container = document.getElementById('svg-map-container');
-//   container.querySelectorAll('g[data-prov-id]').forEach(group => {
-//     const svgId = group.id;
-//     const provName = idToProvinsi[svgId];
-//     if (!provName) return;
+function attachHoverEvents() {
+  const container = document.getElementById('svg-map-container');
+  container.querySelectorAll('g.province').forEach(group => {
+    // Cari nama provinsi (fallback ke ID jika tidak ada di idToProvinsi)
+    const provKey  = group.id;
+    const provName = idToProvinsi[provKey] || provKey;
 
+    group.addEventListener('mouseenter', e => {
+      const data = dataMap.get(provName) || null;
+      showHoverCard(provName, data, e);
+    });
+    group.addEventListener('mouseleave', hideHoverCard);
+  });
+}
+
+// /**
+//  * @param {string[]} allowedProvinsis  // hanya yang ada di tabel
+//  */
+// function attachHoverEvents(allowedProvinsis) {
+//   const container = document.getElementById('svg-map-container');
+//   container.querySelectorAll('g.province').forEach(group => {
+//     const provName = idToProvinsi[group.id];
+//     // kalau provinsi ini tidak di tabel, skip
+//     if (!allowedProvinsis.includes(provName)) return;
+
+//     // sisipkan hitbox atau langsung pakai path
 //     group.addEventListener('mouseenter', e => {
 //       const data = dataMap.get(provName);
 //       if (data) showHoverCard(provName, data, e);
@@ -219,36 +238,42 @@ async function loadSVGMap(path) {
 //   });
 // }
 
-/**
- * @param {string[]} allowedProvinsis  // hanya yang ada di tabel
- */
-function attachHoverEvents(allowedProvinsis) {
-  const container = document.getElementById('svg-map-container');
-  container.querySelectorAll('g.province').forEach(group => {
-    const provName = idToProvinsi[group.id];
-    // kalau provinsi ini tidak di tabel, skip
-    if (!allowedProvinsis.includes(provName)) return;
-
-    // sisipkan hitbox atau langsung pakai path
-    group.addEventListener('mouseenter', e => {
-      const data = dataMap.get(provName);
-      if (data) showHoverCard(provName, data, e);
-    });
-    group.addEventListener('mouseleave', hideHoverCard);
-  });
-}
-
 
 // Show hover info card
+// function showHoverCard(name, data, event) {
+//   const card = document.getElementById('hover-card');
+//   card.innerHTML = `
+//     <h3 class="text-lg font-semibold mb-2">${data['Provinsi']}</h3>
+//     ${['Target SID','Sudah Kontrak SID','Target Konstruksi (Ha)','Total SID Tersedia (Ha)','Kontrak Konstruksi  (Ha)','Realisasi Fisik']
+//       .map(key => `<p><strong>${key.replace(/\s*\(Ha\)/, '')}:</strong> ${data[key]}${key.includes('(Ha)') ? ' Ha' : ''}</p>`)
+//       .join('')}
+//   `;
+//   card.style.top = `${event.clientY + 20}px`;
+//   card.style.left = `${event.clientX + 20}px`;
+//   card.classList.remove('hidden');
+// }
+
 function showHoverCard(name, data, event) {
   const card = document.getElementById('hover-card');
-  card.innerHTML = `
-    <h3 class="text-lg font-semibold mb-2">${data['Provinsi']}</h3>
-    ${['Target SID','Sudah Kontrak SID','Target Konstruksi (Ha)','Total SID Tersedia (Ha)','Kontrak Konstruksi  (Ha)','Realisasi Fisik']
-      .map(key => `<p><strong>${key.replace(/\s*\(Ha\)/, '')}:</strong> ${data[key]}${key.includes('(Ha)') ? ' Ha' : ''}</p>`)
-      .join('')}
-  `;
-  card.style.top = `${event.clientY + 20}px`;
+  // Awali dengan judul nama provinsi
+  let html = `<h3 class="text-lg font-semibold mb-2">${name}</h3>`;
+
+  if (data) {
+    // Tampilkan semua field jika ada data
+    html += ['Target SID','Sudah Kontrak SID','Target Konstruksi (Ha)',
+             'Total SID Tersedia (Ha)','Kontrak Konstruksi  (Ha)',
+             'Realisasi Fisik']
+      .map(key => 
+        `<p><strong>${key.replace(/\s*\(Ha\)/, '')}:</strong> ` +
+        `${data[key] || '-'}${key.includes('(Ha)') ? ' Ha' : ''}</p>`
+      ).join('');
+  } else {
+    // Fallback jika datanya belum tersedia
+    html += `<p class="text-sm text-gray-500">Data belum tersedia</p>`;
+  }
+
+  card.innerHTML = html;
+  card.style.top  = `${event.clientY + 20}px`;
   card.style.left = `${event.clientX + 20}px`;
   card.classList.remove('hidden');
 }
