@@ -1,0 +1,9 @@
+#svg-map-container g.province:hover path {
+  fill: #3B82F6 !important;
+}
+
+/* Pastikan group dan path bisa menerima event */
+#svg-map-container g.province,
+#svg-map-container g.province path {
+  pointer-events: all;
+}

@@ -1,0 +1,224 @@
+    <!DOCTYPE html>
+    <html lang="id">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Dashboard - Map Indonesia & Data SID</title>
+        <!-- Tailwind via CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+        <style>
+      #svg-map-container svg {
+  width: 100% !important;
+  height: auto !important;
+  display: block; /* hilangkan whitespace bawah inline */
+}
+      /* Ensure province shapes respond to pointer */
+      #svg-map-container g.province,
+      #svg-map-container g.province path {
+        pointer-events: all;
+      }
+      /* Smooth transitions */
+      #svg-map-container g.province path {
+        transition: fill 0.2s ease, transform 0.2s ease;
+        transform-origin: center;
+      }
+      /* Hover effects on paths only */
+      #svg-map-container g.province:hover path {
+        fill: #3B82F6 !important;
+        stroke: #1D4ED8;
+        stroke-width: 1.3;
+        transform: scale(1.001);
+        cursor: pointer;
+      }
+      /* Fallback pointer-events bounding-box */
+      #svg-map-container g.province {
+        pointer-events: bounding-box;
+      }
+
+      /* block hit events pada <g> dan <rect> */ 
+#svg-map-container g.province,
+#svg-map-container g.province rect {
+  pointer-events: none;
+}
+/* aktifkan hanya di area painted path */
+#svg-map-container g.province path {
+  pointer-events: visiblePainted;
+  cursor: pointer;
+}
+
+        </style>
+      </head>
+      <body class="bg-gray-100 min-h-screen">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-cyan-500 to-blue-500 shadow-lg py-6">
+  <div class="max-w-7xl mx-auto flex items-center gap-6 px-4">
+    <!-- Logo Box -->
+    <div class="flex-none rounded-full bg-white p-2 shadow-md">
+      <img
+        src="./assets/logo-kementan.png"
+        alt="Logo Kementan"
+        class="h-12 w-12 object-contain"
+      />
+    </div>
+    <!-- Title Box -->
+    <div class="flex-1">
+      <h1 class="text-3xl font-extrabold text-white">
+        Dashboard Direktorat Penyediaan Lahan
+      </h1>
+      <p class="mt-1 text-sm text-white/80">
+        Pemantauan &amp; Evaluasi Penyediaan Lahan Pertanian
+      </p>
+    </div>
+  </div>
+</header>
+
+
+        <!-- Cards Section -->
+        <section class="max-w-7xl mx-auto my-6 px-4">
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"
+            id="cards-container"
+          >
+            <!-- Card 1: Sudah Kontrak SID -->
+            <div
+              id="card-kontrak-sid"
+              class="flex items-center gap-3 bg-white rounded-lg shadow p-3"
+            >
+              <div class="p-2 bg-blue-200 rounded-md">
+                <img
+                  src="./assets/document-check.svg"
+                  alt="Sudah Kontrak SID"
+                  class="w-6 h-6"
+                />
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Sudah Kontrak SID</p>
+                <p class="text-base font-semibold text-gray-800">-- Ha</p>
+              </div>
+            </div>
+
+            <!-- Card 2: Target Konstruksi -->
+            <div
+              id="card-target-konstruksi"
+              class="flex items-center gap-3 bg-white rounded-lg shadow p-3"
+            >
+              <div class="p-2 bg-yellow-100 rounded-md">
+                <img
+                  src="./assets/target-arrow.svg"
+                  alt="Target Konstruksi"
+                  class="w-6 h-6"
+                />
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Target Konstruksi (Ha)</p>
+                <p class="text-base font-semibold text-gray-800">-- Ha</p>
+              </div>
+            </div>
+
+            <!-- Card 3: Total SID Tersedia -->
+            <div
+              id="card-sid-tersedia"
+              class="flex items-center gap-3 bg-white rounded-lg shadow p-3"
+            >
+              <div class="p-2 bg-purple-100 rounded-md">
+                <img
+                  src="./assets/database.svg"
+                  alt="Total SID Tersedia"
+                  class="w-6 h-6"
+                />
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Total SID Tersedia (Ha)</p>
+                <p class="text-base font-semibold text-gray-800">-- Ha</p>
+              </div>
+            </div>
+
+            <!-- Card 4: Kontrak Konstruksi -->
+            <div
+              id="card-kontrak-konstruksi"
+              class="flex items-center gap-3 bg-white rounded-lg shadow p-3"
+            >
+              <div class="p-2 bg-green-100 rounded-md">
+                <img
+                  src="./assets/contract.svg"
+                  alt="Kontrak Konstruksi"
+                  class="w-6 h-6"
+                />
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Kontrak Konstruksi (Ha)</p>
+                <p class="text-base font-semibold text-gray-800">-- Ha</p>
+              </div>
+            </div>
+
+            <!-- Card 5: Realisasi Fisik -->
+            <div
+              id="card-realisasi-fisik"
+              class="flex items-center gap-3 bg-white rounded-lg shadow p-3"
+            >
+              <div class="p-2 bg-red-100 rounded-md">
+                <img
+                  src="./assets/chart-bar-popular.svg"
+                  alt="Realisasi Fisik"
+                  class="w-6 h-6"
+                />
+              </div>
+              <div>
+                <p class="text-xs text-gray-500">Realisasi Fisik</p>
+                <p class="text-base font-semibold text-gray-800">-- Ha</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+              <!-- Toggle Buttons -->
+      <section class="max-w-7xl mx-auto my-6 px-4">
+        <div class="flex gap-4">
+          <button id="btn-map" class="px-4 py-2 bg-blue-500 text-white rounded-lg">Peta</button>
+          <button id="btn-table" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg">Tabel</button>
+        </div>
+      </section>
+
+      <!-- Panels: Map & Table -->
+      <div class="max-w-7xl mx-auto px-4 mb-6">
+        <!-- Map Panel -->
+        <div id="panel-map">
+          <section id="map-container" class="bg-white rounded-lg shadow p-4">
+            <div id="svg-map-container" class="relative"></div>
+          </section>
+        </div>
+        <!-- Table Panel -->
+        <div id="panel-table" class="hidden">
+          <section class="bg-white rounded-lg shadow p-4 overflow-auto">
+            <h2 class="text-lg font-semibold mb-4">Data SID Provinsi</h2>
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">No</th>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Provinsi</th>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Target SID</th>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sudah Kontrak SID</th>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Target Konstruksi (Ha)</th>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total SID Tersedia (Ha)</th>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Kontrak Konstruksi (Ha)</th>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Realisasi Fisik</th>
+                </tr>
+              </thead>
+              <tbody id="data-table-body" class="bg-white divide-y divide-gray-200"></tbody>
+            </table>
+          </section>
+        </div>
+      </div>
+
+      <div
+      id="hover-card"
+      class="hidden absolute bg-white rounded-2xl shadow-md p-5 max-w-xs text-sm z-50 transition-opacity duration-200"
+    ></div>
+
+<!-- External Scripts -->
+<script src="script.js"></script>
+      </body>
+    </html>
+  </body>
+</html>
