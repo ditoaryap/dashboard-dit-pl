@@ -72,7 +72,7 @@ const displayedProvinsis   = displayedRows.map(cols => cols[1]);
 
  await loadSVGMap('map.html');
           reorderLabels();     // <-- pastikan teks nama di atas shapes
-        //   expandHitboxes();    // <-- area hover seluas bounding box
+          expandHitboxes();    // <-- area hover seluas bounding box
           +  attachHoverEvents(displayedProvinsis);
 
         //   attachHoverEvents();  nanti kalau butuh semua
