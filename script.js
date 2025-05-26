@@ -154,7 +154,7 @@ function populateDataTable(rows) {
   tbody.innerHTML = '';
 
   // Hanya render 6 baris pertama
-  rows.slice(0, 5).forEach(cols => {
+  rows.slice(0, 21).forEach(cols => {
     if (cols.length < 8) return;
     const tr = document.createElement('tr');
     cols.forEach(cell => {
